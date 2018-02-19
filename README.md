@@ -9,6 +9,7 @@
 [kr210_forward_kinematics]: ./misc_images/kr210_forward_kinematics.jpg
 [kr210_geometric_ik_1]: ./misc_images/kr210_geometric_ik_1.png
 [kr210_geometric_ik_2]: ./misc_images/kr210_geometric_ik_2.png
+[motionplanning]: ./misc_images/motionplanning1.PNG
 
 ---
 
@@ -138,3 +139,18 @@ if (theta6 > 0) and ((pi-theta6) < theta6):
 elif (theta6 < 0) and ((theta6+pi) < -theta6):
 	theta6 = theta6 + pi;
 ```
+
+## Results and Implementation Notes
+In contrast to the recommended workflow, we decided to use _numpy_ instead of 
+_sympy_ to remove the need for symbolic math. Therefore, you will see that 
+the forward kinematics are defined in a separate utility function called 
+`KR210ForwardMatrix`, which is inverted on the fly during IK computation using 
+the numpy `inv` function.
+
+The inverse kinematics solution adequately solved all test cases within a 
+few centimeters of error. Unfortunately, my Virtual Machine environment 
+prevented me from looping through all test cases continuously, as 
+respawning a new object after the first task was complete generated an 
+error message about the `trajectory_sampler` process dying.
+
+![KR210 Manipulator in action][motionplanning]
