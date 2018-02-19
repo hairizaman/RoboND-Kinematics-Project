@@ -86,11 +86,37 @@ components of the wrist center.
 
 The angles _theta2_ and _theta3_ can then be found by taking the manipulator 
 geometry in the robot plane and applying the law of cosines. The schematic 
-below shows the necessary equations.
+below shows the necessary equations, and the corresponding code is below it.
 
 ![KR210 Geometric IK for theta2 and theta3][kr210_geometric_ik_2]
 
-# Step 3 - Find the last 3 angles
+```
+# Geometric IK for joints 1-3
+d1 = d[0];
+a1 = a[1];
+a2 = a[2];
+a3 = a[3]; 
+d4 = d[3];
+d4_eff = sqrt(d4*d4 + a3*a3);
+
+# Theta1 is defined exclusively by the angle on the X-Y Plane
+theta1 = arctan2(wy,wx);
+
+# Theta2 and Theta3 are interdependent and require some trigonometry.
+# Refer to the README file for a schematic.
+xRef = sqrt(wx*wx + wy*wy) - a1;
+yRef = wz - d1;
+dRef = sqrt(xRef*xRef + yRef*yRef);
+beta = arctan2(yRef,xRef);
+
+angleA = arccos((dRef*dRef + a2*a2 - d4_eff*d4_eff)/(2*a2*dRef))
+theta2 = (pi/2) - angleA - beta;
+
+angleB = arccos((a2*a2 + d4_eff*d4_eff - dRef*dRef)/(2*a2*d4_eff))
+theta3 = (pi/2) - angleB - arctan2(-a3,d4);
+```
+
+### Step 3 - Find the last 3 angles
 Now that we have the angles _theta1_ through _theta3_, we can use forward 
 kinematics to get the homogeneous matrix of the robot at the wrist center. 
 Then, we can invert this matrix to find the transformation matrix from the 
