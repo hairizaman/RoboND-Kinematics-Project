@@ -140,17 +140,44 @@ elif (theta6 < 0) and ((theta6+pi) < -theta6):
 	theta6 = theta6 + pi;
 ```
 
-## Results and Implementation Notes
+## Implementation Notes
 In contrast to the recommended workflow, we decided to use _numpy_ instead of 
 _sympy_ to remove the need for symbolic math. Therefore, you will see that 
-the forward kinematics are defined in a separate utility function called 
-`KR210ForwardMatrix`, which is inverted on the fly during IK computation using 
-the numpy `inv` function.
+the forward kinematics are defined in separate utility functions called 
+`KR210ForwardMatrix` and `DHMatrix`. These matrices are automatically 
+calculated given the start and end indices, and inverted on the fly as 
+needed by the IK solver using numpy's `inv` function.
 
+```
+# Build transformation matrix from DH parameters
+def DHMatrix(alpha,a,d,theta):
+    return matrix([[cos(theta), -sin(theta), 0, a],
+                   [sin(theta)*cos(alpha), cos(theta)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+                   [sin(theta)*sin(alpha), cos(theta)*sin(alpha), cos(alpha), cos(alpha)*d],
+                   [0, 0, 0, 1]])
+
+
+# Build transformation matrix given configuration vector "q" and start and end coordinate frame indices
+def KR210ForwardMatrix(q,alpha,a,d,startIdx,endIdx):
+
+    theta = [q[0], q[1]-pi/2, q[2], q[3], q[4], q[5], 0]; # Includes correction to q2 (or q[1])
+
+    # Loop through all the selected indices
+    M = eye(4);
+    for idx in range(startIdx,endIdx):
+        M = M*DHMatrix(alpha[idx],a[idx],d[idx],theta[idx])
+    return M;
+```
+
+## Overall Results
 The inverse kinematics solution adequately solved all test cases within a 
-few centimeters of error. Unfortunately, my Virtual Machine environment 
-prevented me from looping through all test cases continuously, as 
-respawning a new object after the first task was complete generated an 
-error message about the `trajectory_sampler` process dying.
+few centimeters of error, both in the `IK_debug.py` script provided, and 
+when integrated into the final `IK_server.py` program.
 
 ![KR210 Manipulator in action][motionplanning]
+
+Unfortunately, the Virtual Machine environment prevented looping
+through all test cases continuously in RViz, as respawning a new object 
+after the first pick-and-place task was complete somehow generated an 
+error message about the `trajectory_sampler` process dying.
+
