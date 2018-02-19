@@ -1,10 +1,14 @@
 # Robotic arm - Pick & Place project
 # Sebastian Castro
 
-[//]: # Image Reference Section
+---
+
+[//]: # (Image References)
+
 [coordinate_correction]: ./misc_images/coordinate_correction.png
 [kr210_forward_kinematics]: ./misc_images/kr210_forward_kinematics.jpg
 
+---
 
 ## Kinematic Analysis
 
