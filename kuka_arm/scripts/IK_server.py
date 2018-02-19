@@ -80,9 +80,9 @@ def handle_calculate_IK(req):
             # IK code starts here
             joint_trajectory_point = JointTrajectoryPoint()
 
-	    # Extract end-effector position and orientation from request
-	    # px,py,pz = end-effector position
-	    # roll, pitch, yaw = end-effector orientation
+            # Extract end-effector position and orientation from request
+            # px,py,pz = end-effector position
+            # roll, pitch, yaw = end-effector orientation
             px = req.poses[x].position.x
             py = req.poses[x].position.y
             pz = req.poses[x].position.z
@@ -136,6 +136,22 @@ def handle_calculate_IK(req):
             theta4, theta5, theta6 = tf.transformations.euler_from_matrix(R3_6,axes='rzyz')
             theta5 = -theta5; # Since the rotation is actually z, -y, z
 
+            # Handle multiple theta solutions
+            # If theta4 is near inverted (pi), flip it by an offset of pi to be near zero
+            # Note this will require theta5 to be reversed in sign
+            if (theta4 > 0) and ((pi-theta4) < theta4):
+                theta4 = theta4 - pi;
+                theta5 = -theta5;
+            elif (theta4 < 0) and ((theta4+pi) < -theta4):
+                theta4 = theta4 + pi;
+                theta5 = -theta5;
+
+            # Do the same for theta6, which doesn't affect other angles
+            if (theta6 > 0) and ((pi-theta6) < theta6):
+                theta6 = theta6 - pi;
+            elif (theta6 < 0) and ((theta6+pi) < -theta6):
+                theta6 = theta6 + pi;
+ 
             ###
 
             # Populate response for the IK request

@@ -110,7 +110,7 @@ def test_code(test_case):
     d = [0.75, 0, 0, 1.5, 0, 0, 0.303];
       
     # Find the Euler Angles of the requested orientation
-    q = [orientation.w,orientation.x,orientation.y,orientation.z]
+    q = [orientation.x,orientation.y,orientation.z,orientation.w]
     eul = tf.transformations.euler_from_quaternion(q)
     roll = eul[0];
     pitch = eul[1];
@@ -158,6 +158,23 @@ def test_code(test_case):
     R3_6 = R0_3.T * Rrpy;
     theta4, theta5, theta6 = tf.transformations.euler_from_matrix(R3_6,axes='rzyz')
     theta5 = -theta5; # Since the rotation is actually z, -y, z
+
+
+    # Handle multiple theta solutions
+    # If theta4 is near inverted (pi), flip it by an offset of pi to be near zero
+    # Note this will require theta5 to be reversed in sign
+    if (theta4 > 0) and ((pi-theta4) < theta4):
+        theta4 = theta4 - pi;
+        theta5 = -theta5;
+    elif (theta4 < 0) and ((theta4+pi) < -theta4):
+        theta4 = theta4 + pi;
+        theta5 = -theta5;
+
+    # Do the same for theta6, which doesn't affect other angles
+    if (theta6 > 0) and ((pi-theta6) < theta6):
+        theta6 = theta6 - pi;
+    elif (theta6 < 0) and ((theta6+pi) < -theta6):
+        theta6 = theta6 + pi;
 
     ## 
     ########################################################################################
