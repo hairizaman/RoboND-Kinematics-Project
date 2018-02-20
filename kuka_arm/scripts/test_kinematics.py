@@ -60,54 +60,53 @@ if __name__ == "__main__":
                 alpha0: 0, alpha1: -pi/2, alpha2: 0, alpha3: -pi/2, alpha4: pi/2, alpha5: -pi/2, alpha6: 0, 
                 d1: 0.75, d2: 0, d3: 0, d4: 1.5, d5: 0, d6: 0, d7: 0.303};
 
+
     # Get each individual matrix
     M1_0 = KR210ForwardMatrix(q,dhParams,0,1)
     print("M1_0")
     print(simplify(M1_0))
-    print(simplify(M1_0.evalf(subs=subsDict)))
+    print(simplify(M1_0.subs(subsDict)))
 
     M2_1 = KR210ForwardMatrix(q,dhParams,1,2)
     print("M2_1")
     print(simplify(M2_1))
-    print(simplify(M2_1.evalf(subs=subsDict)))
+    print(simplify(M2_1.subs(subsDict)))
 
     M3_2 = KR210ForwardMatrix(q,dhParams,2,3)
     print("M3_2")
     print(simplify(M3_2))
-    print(simplify(M3_2.evalf(subs=subsDict)))
+    print(simplify(M3_2.subs(subsDict)))
 
     M4_3 = KR210ForwardMatrix(q,dhParams,3,4)
     print("M4_3")
     print(simplify(M4_3))
-    print(simplify(M4_3.evalf(subs=subsDict)))
+    print(simplify(M4_3.subs(subsDict)))
 
     M5_4 = KR210ForwardMatrix(q,dhParams,4,5)
     print("M5_4")
     print(simplify(M5_4))
-    print(simplify(M5_4.evalf(subs=subsDict)))
+    print(simplify(M5_4.subs(subsDict)))
 
     M6_5 = KR210ForwardMatrix(q,dhParams,5,6)
     print("M6_5")
     print(simplify(M6_5))
-    print(simplify(M6_5.evalf(subs=subsDict)))
+    print(simplify(M6_5.subs(subsDict)))
 
     MG_6 = KR210ForwardMatrix(q,dhParams,6,7)
     print("MG_6")
     print(simplify(MG_6))
-    print(simplify(MG_6.evalf(subs=subsDict)))
+    print(simplify(MG_6.subs(subsDict)))
 
     # Get the full Forward Kinematics matrix
-    # Define a configuration vector
-    q = [0,0,0,0,0,0];
-    #q = [2.71,-0.49,-0.49,5.31,-0.78,-0.96];
-    dhParams = { 
-               "alpha":[0, -pi/2, 0, -pi/2, pi/2, -pi/2, 0],
-               "a": [0, 0.35, 1.25, -0.054, 0, 0, 0],
-               "d": [0.75, 0, 0, 1.5, 0, 0, 0.303],
-               }
+    # Symbolically in q
     M = KR210ForwardMatrix(q,dhParams,0,7);
     print("Homogeneous matrix from base to end effector")
-    print(M)
+    print(simplify(M.subs(subsDict)))
+    # With a certain configuration q
+    q = [0,0,0,0,0,0];
+    #q = [2.71,-0.49,-0.49,5.31,-0.78,-0.96];
+    M = KR210ForwardMatrix(q,dhParams,0,7);
+    print(simplify(M.subs(subsDict)))
  
 
 

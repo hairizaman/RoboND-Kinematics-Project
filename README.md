@@ -119,7 +119,7 @@ subsDict = {a0: 0, a1: 0.35, a2: 1.25, a3: -0.054, a4: 0, a5: 0, a6: 0,
 M1_0 = KR210ForwardMatrix(q,dhParams,0,1)
 print("M1_0")
 print(simplify(M1_0))
-print(simplify(M1_0.evalf(subs=subsDict)))
+print(simplify(M1_0.subs(subsDict)))
 ```
 
 By following the same for all 7 transformations in the KR210 manipulator, we can get fully symbolic 
@@ -133,10 +133,10 @@ Matrix([
 [sin(alpha0)*sin(q1), sin(alpha0)*cos(q1),  cos(alpha0),  d1*cos(alpha0)],
 [                  0,                   0,            0,               1]])
 Matrix([
-[            cos(q1),            -sin(q1),   0,    0],
-[sin(q1)*cos(alpha0), cos(alpha0)*cos(q1),   0,    0],
-[sin(alpha0)*sin(q1), sin(alpha0)*cos(q1), 1.0, 0.75],
-[                  0,                   0,   0,  1.0]])
+[cos(q1), -sin(q1), 0,    0],
+[sin(q1),  cos(q1), 0,    0],
+[      0,        0, 1, 0.75],
+[      0,        0, 0,    1]])
 
 M2_1
 Matrix([
@@ -145,10 +145,10 @@ Matrix([
 [-sin(alpha1)*cos(q2), sin(alpha1)*sin(q2),  cos(alpha1),  d2*cos(alpha1)],
 [                   0,                   0,            0,               1]])
 Matrix([
-[             sin(q2),             cos(q2),        0, 0.35],
-[-cos(alpha1)*cos(q2), sin(q2)*cos(alpha1),      1.0,    0],
-[-sin(alpha1)*cos(q2), sin(alpha1)*sin(q2), -0.e-189,    0],
-[                   0,                   0,        0,  1.0]])
+[sin(q2),  cos(q2), 0, 0.35],
+[      0,        0, 1,    0],
+[cos(q2), -sin(q2), 0,    0],
+[      0,        0, 0,    1]])
 
 M3_2
 Matrix([
@@ -157,10 +157,10 @@ Matrix([
 [sin(alpha2)*sin(q3), sin(alpha2)*cos(q3),  cos(alpha2),  d3*cos(alpha2)],
 [                  0,                   0,            0,               1]])
 Matrix([
-[            cos(q3),            -sin(q3),   0, 1.25],
-[sin(q3)*cos(alpha2), cos(alpha2)*cos(q3),   0,    0],
-[sin(alpha2)*sin(q3), sin(alpha2)*cos(q3), 1.0,    0],
-[                  0,                   0,   0,  1.0]])
+[cos(q3), -sin(q3), 0, 1.25],
+[sin(q3),  cos(q3), 0,    0],
+[      0,        0, 1,    0],
+[      0,        0, 0,    1]])
 
 M4_3
 Matrix([
@@ -169,10 +169,10 @@ Matrix([
 [sin(alpha3)*sin(q4), sin(alpha3)*cos(q4),  cos(alpha3),  d4*cos(alpha3)],
 [                  0,                   0,            0,               1]])
 Matrix([
-[            cos(q4),            -sin(q4),        0,   -0.054],
-[sin(q4)*cos(alpha3), cos(alpha3)*cos(q4),      1.0,      1.5],
-[sin(alpha3)*sin(q4), sin(alpha3)*cos(q4), -0.e-189, -0.e-214],
-[                  0,                   0,        0,      1.0]])
+[ cos(q4), -sin(q4), 0, -0.054],
+[       0,        0, 1,    1.5],
+[-sin(q4), -cos(q4), 0,      0],
+[       0,        0, 0,      1]])
 
 M5_4
 Matrix([
@@ -181,10 +181,10 @@ Matrix([
 [sin(alpha4)*sin(q5), sin(alpha4)*cos(q5),  cos(alpha4),  d5*cos(alpha4)],
 [                  0,                   0,            0,               1]])
 Matrix([
-[            cos(q5),            -sin(q5),        0,   0],
-[sin(q5)*cos(alpha4), cos(alpha4)*cos(q5),     -1.0,   0],
-[sin(alpha4)*sin(q5), sin(alpha4)*cos(q5), -0.e-189,   0],
-[                  0,                   0,        0, 1.0]])
+[cos(q5), -sin(q5),  0, 0],
+[      0,        0, -1, 0],
+[sin(q5),  cos(q5),  0, 0],
+[      0,        0,  0, 1]])
 
 M6_5
 Matrix([
@@ -193,10 +193,10 @@ Matrix([
 [sin(alpha5)*sin(q6), sin(alpha5)*cos(q6),  cos(alpha5),  d6*cos(alpha5)],
 [                  0,                   0,            0,               1]])
 Matrix([
-[            cos(q6),            -sin(q6),        0,   0],
-[sin(q6)*cos(alpha5), cos(alpha5)*cos(q6),      1.0,   0],
-[sin(alpha5)*sin(q6), sin(alpha5)*cos(q6), -0.e-189,   0],
-[                  0,                   0,        0, 1.0]])
+[ cos(q6), -sin(q6), 0, 0],
+[       0,        0, 1, 0],
+[-sin(q6), -cos(q6), 0, 0],
+[       0,        0, 0, 1]])
 
 MG_6
 Matrix([
@@ -205,48 +205,42 @@ Matrix([
 [0, sin(alpha6),  cos(alpha6),  d7*cos(alpha6)],
 [0,           0,            0,               1]])
 Matrix([
-[1.0,   0,   0,     0],
-[  0, 1.0,   0,     0],
-[  0,   0, 1.0, 0.303],
-[  0,   0,   0,   1.0]])
+[1, 0, 0,     0],
+[0, 1, 0,     0],
+[0, 0, 1, 0.303],
+[0, 0, 0,     1]])
 
 ```
 
 The full homogeneous transformation matrix from the base to the end effector can be 
 found by multiplying all the matrices above, or by calling the utility function as follows, 
-from index 0 (base) to 7 (end effector). Below is the code for the zero-configuration
+from index 0 (base) to 7 (end effector).
 
 ```
-q = [0,0,0,0,0,0];
-dhParams = { 
-            "alpha":[0, -pi/2, 0, -pi/2, pi/2, -pi/2, 0],
-            "a": [0, 0.35, 1.25, -0.054, 0, 0, 0],
-            "d": [0.75, 0, 0, 1.5, 0, 0, 0.303],
-           }
 M = KR210ForwardMatrix(q,dhParams,0,7);
-print(M)
+print("Homogeneous matrix from base to end effector")
+print(simplify(M.subs(subsDict)))
 ```
 
 Which results in... 
 
 ```
 Matrix([
-[0, 0, 1, 2.15300000000000],
-[0, -1, 0, 0], 
-[1, 0, 0, 1.94600000000000],
-[0, 0, 0, 1]])
+[((sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*cos(q5) + sin(q5)*cos(q1)*cos(q2 + q3))*cos(q6) - (-sin(q1)*cos(q4) + sin(q4)*sin(q2 + q3)*cos(q1))*sin(q6), -((sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*cos(q5) + sin(q5)*cos(q1)*cos(q2 + q3))*sin(q6) + (sin(q1)*cos(q4) - sin(q4)*sin(q2 + q3)*cos(q1))*cos(q6), -(sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*sin(q5) + cos(q1)*cos(q5)*cos(q2 + q3), -0.303*sin(q1)*sin(q4)*sin(q5) + 1.25*sin(q2)*cos(q1) - 0.303*sin(q5)*sin(q2 + q3)*cos(q1)*cos(q4) - 0.054*sin(q2 + q3)*cos(q1) + 0.303*cos(q1)*cos(q5)*cos(q2 + q3) + 1.5*cos(q1)*cos(q2 + q3) + 0.35*cos(q1)],
+[ ((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*cos(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*sin(q6), -((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*sin(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*cos(q6), -(sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*sin(q5) + sin(q1)*cos(q5)*cos(q2 + q3),  1.25*sin(q1)*sin(q2) - 0.303*sin(q1)*sin(q5)*sin(q2 + q3)*cos(q4) - 0.054*sin(q1)*sin(q2 + q3) + 0.303*sin(q1)*cos(q5)*cos(q2 + q3) + 1.5*sin(q1)*cos(q2 + q3) + 0.35*sin(q1) + 0.303*sin(q4)*sin(q5)*cos(q1)],
+[                                                                -(sin(q5)*sin(q2 + q3) - cos(q4)*cos(q5)*cos(q2 + q3))*cos(q6) - sin(q4)*sin(q6)*cos(q2 + q3),                                                                  (sin(q5)*sin(q2 + q3) - cos(q4)*cos(q5)*cos(q2 + q3))*sin(q6) - sin(q4)*cos(q6)*cos(q2 + q3),                                     -sin(q5)*cos(q4)*cos(q2 + q3) - sin(q2 + q3)*cos(q5),                                                                                 -0.303*sin(q5)*cos(q4)*cos(q2 + q3) - 0.303*sin(q2 + q3)*cos(q5) - 1.5*sin(q2 + q3) + 1.25*cos(q2) - 0.054*cos(q2 + q3) + 0.75],
+[                                                                                                                                                            0,                                                                                                                                                             0,                                                                                        0,                                                                                                                                                                                                              1]])
 ```
 
-Alternatively, below is the resulting homogeneous transformation matrix for 
-the first test case in `IK_debug.py`:
+The resulting matrix for zero configuration, for example, is:
 
 ```
-[[-0.05786762 -0.44238946  0.89495414  2.16568156]
- [-0.99306288  0.11742267 -0.0061675  -1.44488908]
- [-0.10235946 -0.88910263 -0.44611552  1.55849245]
- [ 0.          0.          0.          1.        ]]
+Matrix([
+[0,  0, 1, 2.153],
+[0, -1, 0,     0],
+[1,  0, 0, 1.946],
+[0,  0, 0,     1]])
 ```
-
 
 ## Inverse Kinematics
 
