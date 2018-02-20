@@ -38,14 +38,14 @@ def DHMatrix(alpha,a,d,theta):
 
 
 # Build transformation matrix given configuration vector "q" and start and end coordinate frame indices
-def KR210ForwardMatrix(q,alpha,a,d,startIdx,endIdx):
+def KR210ForwardMatrix(q,params,startIdx,endIdx):
 
     theta = [q[0], q[1]-pi/2, q[2], q[3], q[4], q[5], 0]; # Includes correction to q2 (or q[1])
 
     # Loop through all the selected indices
     M = eye(4);
     for idx in range(startIdx,endIdx):
-        M = M*DHMatrix(alpha[idx],a[idx],d[idx],theta[idx])
+        M = M*DHMatrix(params["alpha"][idx],params["a"][idx],params["d"][idx],theta[idx])
     return M;
 
 # Correction matrix converting from Gazebo coordinates to the DH parameter coordinates
@@ -105,9 +105,11 @@ def test_code(test_case):
 
     # Define all constant DH parameters for the KR210
     # In this case, it's all parameters except theta, since all joints are revolute
-    alpha = [0, -pi/2, 0, -pi/2, pi/2, -pi/2, 0];
-    a = [0, 0.35, 1.25, -0.054, 0, 0, 0];
-    d = [0.75, 0, 0, 1.5, 0, 0, 0.303];
+    dhParams = { 
+               "alpha":[0, -pi/2, 0, -pi/2, pi/2, -pi/2, 0],
+               "a": [0, 0.35, 1.25, -0.054, 0, 0, 0],
+               "d": [0.75, 0, 0, 1.5, 0, 0, 0.303],
+               }
       
     # Find the Euler Angles of the requested orientation
     q = [orientation.x,orientation.y,orientation.z,orientation.w]
@@ -123,17 +125,17 @@ def test_code(test_case):
     nz = Rrpy[2,2];
 
     # Find the wrist center position
-    wristLength = d[5]+d[6];
+    wristLength = dhParams["d"][5]+dhParams["d"][6];
     wx = position.x - wristLength*nx;
     wy = position.y - wristLength*ny;
     wz = position.z - wristLength*nz;
 
     # Geometric IK for joints 1-3
-    d1 = d[0];
-    a1 = a[1];
-    a2 = a[2];
-    a3 = a[3]; 
-    d4 = d[3];
+    d1 = dhParams["d"][0];
+    a1 = dhParams["a"][1];
+    a2 = dhParams["a"][2];
+    a3 = dhParams["a"][3]; 
+    d4 = dhParams["d"][3];
     d4_eff = sqrt(d4*d4 + a3*a3);
 
     # Theta1 is defined exclusively by the angle on the X-Y Plane
@@ -154,7 +156,7 @@ def test_code(test_case):
 
     # Inverse Orientation for Joints 4-6
     q = [theta1, theta2, theta3, 0, 0, 0] # Last 3 values don't matter yet
-    R0_3 = KR210ForwardMatrix(q,alpha,a,d,0,4)[0:3,0:3] # Do not need 4th dimension
+    R0_3 = KR210ForwardMatrix(q,dhParams,0,4)[0:3,0:3] # Do not need 4th dimension
     R3_6 = R0_3.T * Rrpy;
     theta4, theta5, theta6 = tf.transformations.euler_from_matrix(R3_6,axes='rzyz')
     theta5 = -theta5; # Since the rotation is actually z, -y, z
@@ -187,7 +189,8 @@ def test_code(test_case):
 
     # Get the Forward Kinematics matrices
     q = [theta1,theta2,theta3,theta4,theta5,theta6];
-    M_ee = KR210ForwardMatrix(q,alpha,a,d,0,7); # End effector: From base to gripper
+    M_ee = KR210ForwardMatrix(q,dhParams,0,7); # End effector: From base to gripper
+    print(M_ee)
 
     ## End your code input for forward kinematics here!
     ########################################################################################
